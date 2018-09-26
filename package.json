@@ -1,0 +1,27 @@
+{
+  "name": "pollerbear",
+  "version": "1.0.0",
+  "description": "A polling app",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm start"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TravisJRyan/PollerBear.git"
+  },
+  "author": "Travis Ryan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/TravisJRyan/PollerBear/issues"
+  },
+  "homepage": "https://github.com/TravisJRyan/PollerBear#readme",
+  "dependencies": {
+    "express": "^4.16.3",
+    "fs": "0.0.1-security",
+    "materialize-css": "^1.0.0-rc.2",
+    "mongodb": "^3.1.6",
+    "nodemon": "^1.18.4",
+    "pug": "^2.0.3"
+  }
+}
