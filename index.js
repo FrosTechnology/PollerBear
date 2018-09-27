@@ -22,7 +22,8 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 
-// Home Page
+// Home Page Route
+// If user is logged in, redirect to their dashboard. Otherwise, show register/login home page
 app.get("/", function (req, res) {
     res.render("homepage");
 });
