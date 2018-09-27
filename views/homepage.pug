@@ -70,12 +70,13 @@ html
 			h3(style="color: white; text-shadow: 2px 2px black; font-family: 'Acme', sans-serif;") Make cool polls.
 			button.btn.waves-effect.waves-light.modal-trigger.blue(data-target="registermodal") Get started.
 
-		//Materialize JS CDN
+		// Materialize JS CDN
 		script(src='https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js')
 		script.
-			document.addEventListener('DOMContentLoaded', function() {
-				var elems = document.querySelectorAll('.modal');
-				var instances = M.Modal.init(elems);
+			// Initialize modals to open on-click
+			document.addEventListener('DOMContentLoaded', function() { // add an event listener to the loaded DOM content
+				var elems = document.querySelectorAll('.modal'); // select all modal classes
+				var instances = M.Modal.init(elems); // initialize the modals
 			});
 
 			// Add an event listener to submit register form on enter keyup
