@@ -58,11 +58,11 @@ html
 					form.col.s12(action="/login" method="post")
 						.row
 							.input-field.col.s12
-								input#loginusername.validate(type='text', style="color: black")
+								input#loginusername.validate(type='text', name="username", style="color: black")
 								label(for='loginusername') Username
 						.row
 							.input-field.col.s12
-								input#loginpassword.validate(type='password', style="color: black")
+								input#loginpassword.validate(type='password', name="password", style="color: black")
 								label(for='loginpassword') Password
 							.modal-footer
 								button#loginButton.modal-close.waves-effect.waves-green.btn.blue Log In
