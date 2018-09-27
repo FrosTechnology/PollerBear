@@ -1,0 +1,97 @@
+doctype html
+html
+	head
+		// Import Google Icon Font
+		link(href='https://fonts.googleapis.com/icon?family=Material+Icons', rel='stylesheet')
+		// Import materialize.css
+		link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css')
+		link(rel='stylesheet', href='style.css')
+		link(rel="stylesheet", href="https://fonts.googleapis.com/css?family=Acme")
+		title PollerBear
+		// Let browser know website is optimized for mobile
+		meta(name='viewport', content='width=device-width, initial-scale=1.0')
+		style.
+			body {
+				background: url(img/iceLandscape.jpg) no-repeat center center fixed;
+				-webkit-background-size: cover;
+				-moz-background-size: cover;
+				-o-background-size: cover;
+				background-size: cover;
+			}
+	body
+		nav.blue.darken-3(style="font-family: 'Acme', sans-serif;")
+			.nav-wrapper
+				a.brand-logo(href='/', style="margin-left:15px;")
+					img(src='img/logo.png', height='30', width='35')
+					|  PollerBear
+				ul.right.hide-on-med-and-down
+					li
+						a.modal-trigger(data-target="registermodal") Register
+					li
+						a.modal-trigger(data-target="loginmodal") Log In
+		
+		// Modal for user registration
+		#registermodal.modal
+			.modal-content.container
+				h4.center-align Register
+				.row
+					form.col.s12(action="/register" method="post")
+						.row
+							.input-field.col.s12
+								input#registerusername.validate(type='text', name="username", style="color: black")
+								label(for='registerusername') Username
+						.row
+							.input-field.col.s12
+								input#registerpassword.validate(type='password', name="password", style="color: black")
+								label(for='registerpassword') Password
+						.row
+							.input-field.col.s12
+								input#email.validate(type='text',name="email", style="color: black")
+								label(for='email') Email
+							.modal-footer
+								button#registerButton.modal-close.waves-effect.waves-green.btn.blue Register
+		// Modal for user registration
+		#loginmodal.modal
+			.modal-content.container
+				h4.center-align Log In
+				.row
+					form.col.s12(action="/login" method="post")
+						.row
+							.input-field.col.s12
+								input#loginusername.validate(type='text', style="color: black")
+								label(for='loginusername') Username
+						.row
+							.input-field.col.s12
+								input#loginpassword.validate(type='password', style="color: black")
+								label(for='loginpassword') Password
+							.modal-footer
+								button#loginButton.modal-close.waves-effect.waves-green.btn.blue Log In
+		.container.center-align
+			h3(style="color: white; text-shadow: 2px 2px black; font-family: 'Acme', sans-serif;") Make cool polls.
+			button.btn.waves-effect.waves-light.modal-trigger.blue(data-target="registermodal") Get started.
+
+		//Materialize JS CDN
+		script(src='https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js')
+		script.
+			document.addEventListener('DOMContentLoaded', function() {
+				var elems = document.querySelectorAll('.modal');
+				var instances = M.Modal.init(elems);
+			});
+
+			// Add an event listener to submit register form on enter keyup
+			var input = document.getElementById("email"); // get input element for email field on register
+			input.addEventListener("keyup", function(event) { // add event listener to the email input
+			event.preventDefault(); // Cancel the default action, if needed
+			if (event.keyCode === 13) { // if enter key is pressed
+				document.getElementById("registerButton").click(); // Hit the register button
+			}
+			});
+
+			// Add an event listener to submit login form on enter keyup
+			var input = document.getElementById("loginpassword"); // get input element for password field on login
+			input.addEventListener("keyup", function(event) { // add event listener to the password input
+			event.preventDefault(); // Cancel the default action, if needed
+			if (event.keyCode === 13) { // if enter key is pressed
+				document.getElementById("loginButton").click(); // Hit the login button
+			}
+			});

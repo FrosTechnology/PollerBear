@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/TravisJRyan/PollerBear#readme",
   "dependencies": {
+    "body-parser": "^1.18.3",
     "express": "^4.16.3",
     "fs": "0.0.1-security",
     "materialize-css": "^1.0.0-rc.2",
