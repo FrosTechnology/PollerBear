@@ -1,8 +1,10 @@
 /* 
     A helper module to perform account operations in MongoDB
+    Travis Ryan
+    September 2018
 */
 
-// / Login helper function to facilitate querying the database for username/password
+// Login helper function to facilitate querying the database for username/password
 module.exports.loginUser = function(username, password, mongoClient, mongoConnectionUrl, callback) {
     mongoClient.connect(mongoConnectionUrl, function (err, db) { // Connect to MongoDB
         if (err) { // For connection errors

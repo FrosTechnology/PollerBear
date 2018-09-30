@@ -1,3 +1,9 @@
+/*
+    Index.js - All major back-end application logic
+    Travis Ryan - September 2018
+    CS396 Intermediate Software Project
+*/
+
 // Node modules are imported as constants
 const express = require("express"); // Express server
 const path = require("path"); // For manipulating file paths
@@ -7,6 +13,7 @@ const session = require('express-session'); // Manages session variables
 const mongoClient = require('mongodb').MongoClient; // Client for connecting to MongoDB
 const bodyParser = require('body-parser'); // body parser for POST operation responses
 const accountHelper = require("./accountHelper.js"); // Helper functions in an accountHelper module
+const pollHelper = require("./pollHelper.js") // Helper functions in a pollHelper module
 
 // Gather secret vars (DB Username and Password)
 const dbUser = JSON.parse(fs.readFileSync("secret.json"))["dbUser"]; // database username
@@ -58,6 +65,17 @@ app.post("/register", function (req, res) {
     });
 });
 
+// POST method for submitting a new poll
+app.post("/newpoll", function (req, res) {
+    // Pass Request Body of parameters into a registerUser function
+    pollHelper.newPoll(req.session.username, req.body, mongoClient, mongoConnectionUrl, function (newPollId) {
+        if(newPollId!=-1)
+            res.redirect("/poll?pollId="+newPollId); // Redirect to new poll if create was successful
+        else
+            res.redirect("/newpoll?error=true");
+    });
+});
+
 // POST method for logging in a user, redirects to dashboard on success
 app.post("/login", function (req, res) {
     // Pass Request Body of parameters into a login function
@@ -73,14 +91,36 @@ app.get("/logout", function(req, res){
     res.redirect("/"); // redirect to home page
 });
 
+// Route for a page to create a new poll
+// User must be logged in to access
+app.get("/newpoll", function (req, res) {
+    if(req.session.username) // if logged in
+        res.render("newpoll"); // render "new poll" page
+    else // if not logged in
+        res.redirect("/"); // redirect to home page
+});
+
+app.get("/poll", function (req, res) {
+    if(req.query.pollId){
+        pollHelper.getPollById(mongoClient, mongoConnectionUrl, req.query.pollId, function(result){
+            res.send(result);
+        });
+    }
+    else
+        res.send("/");
+});
+
+// Route for an account page
 app.get("/account", function (req, res) {
     res.render("dashboard");
 });
 
+// Route for a polls page
 app.get("/polls", function (req, res) {
     res.send("Polls page!");
 });
 
+// Route for a search page
 app.get("/search", function (req, res) {
     res.send("Search page!");
 });

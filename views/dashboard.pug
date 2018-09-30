@@ -20,9 +20,11 @@ html
 					i.material-icons menu
 				ul.right.hide-on-med-and-down
 					li
-						a(href='/account') Account
+						a(href='/newpoll') New Poll
 					li
-						a(href='/polls') Polls
+						a(href='/account') My Account
+					li
+						a(href='/discover') Discover
 					li
 						a(href='/logout') Log Out
 					li(style='margin-left: 15px; margin-right: 15px;')
@@ -35,9 +37,11 @@ html
 		// A list of elements from the navbar that are used for mobile responsiveness when hamburger menu is clicked
 		ul#mobile-navbar-response.sidenav
 			li
-				a(href='/account') Account
+				a(href='/newpoll') New Poll
 			li
-				a(href='/polls') Polls
+				a(href='/account') My Account
+			li
+				a(href='/discover') Discover
 			li
 				a(href='/logout') Log Out
 			li(style='margin-left: 15px; margin-right: 15px;')
@@ -47,9 +51,10 @@ html
 				a.waves-effect.waves-light.btn
 					i.material-icons.left search
 					| Search
+
 		.container
-			h4 Recent Polls
-		
+			h4(style="font-family: 'Acme', sans-serif;") Recent Polls
+			hr
 		
 		//Materialize JS CDN
 		script(src='https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js')
