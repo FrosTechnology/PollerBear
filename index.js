@@ -1,5 +1,5 @@
 /*
-    Index.js - All major back-end application logic
+    Index.js - All major logic for page routing and rendering
     Travis Ryan - September 2018
     CS396 Intermediate Software Project
 */
@@ -49,8 +49,13 @@ app.use(
 // Home Page Route
 // If user is logged in, redirect to their dashboard. Otherwise, show register/login home page
 app.get("/", function (req, res) {
-    if (req.session.username) // if logged in
-        res.render("dashboard"); // render user's dashboard
+    if (req.session.username){ // if logged in
+        pollHelper.getRecentPolls(mongoClient, mongoConnectionUrl, function(results){
+            res.render("dashboard", {
+                recentPolls: results
+            });
+        }); 
+    }
     else // if not logged in
         res.render("homepage"); // render home page (register/login)
 });
@@ -103,16 +108,71 @@ app.get("/newpoll", function (req, res) {
 app.get("/poll", function (req, res) {
     if(req.query.pollId){
         pollHelper.getPollById(mongoClient, mongoConnectionUrl, req.query.pollId, function(result){
-            res.send(result);
+            res.render("poll", {
+                pollData : result[0],
+                username : req.session.username
+            });
         });
     }
     else
         res.send("/");
 });
 
+app.get("/vote", function (req, res){
+    if(req.query.pollId && req.query.vote && req.session.username){ // user must be logged in and provide pollId and their vote
+        pollHelper.voteInPoll(mongoClient, mongoConnectionUrl, req.query.pollId, // call external method to vote in poll
+            req.query.vote, req.session.username, function(successIndicator){ // callback
+                if(successIndicator!=-1)
+                    res.redirect("/pollresults?pollId="+req.query.pollId);
+                else
+                    res.redirect("/poll?pollId="+req.query.pollId);
+        });
+    } else{ // redirect to home page if there is an error with inputs
+        res.redirect("/");
+    }
+});
+
+// Route for showing a user the results of a poll
+// User MUST have voted in the poll to see the results
+app.get("/pollresults", function(req, res){
+    if(req.query.pollId && req.session.username){
+        pollHelper.getPollResults(mongoClient, mongoConnectionUrl, req.query.pollId, req.session.username, function(allVotes, resultOfPollQuery){
+            if(resultOfPollQuery==-1 || allVotes==-1) // some error occurred in gathering the votes
+                res.redirect("/poll?pollId="+req.query.pollId); // redirect to voting page
+            else{ // poll results gathered successfully
+                votesCounter = {}; // initialize an object for storing a count of all the votes
+                for(var i = 0; i < resultOfPollQuery[0]["pollOptions"].length; i++) // loop through the poll's options
+                    votesCounter[resultOfPollQuery[0]["pollOptions"][i]] = 0; // add a possible option to the object
+                var userHasVotedInThisPoll = false; // initialize boolean such that user has not voted in the poll
+                for(var i = 0; i < allVotes.length; i++){ // loop through all votes
+                    if(allVotes[i]["username"]===req.session.username){ // flagger for user's vote
+                        userHasVotedInThisPoll = true; // set flag to true
+                        userVoteData = allVotes[i]; // keep track of the user's vote information (choice and date)
+                    }
+                    votesCounter[allVotes[i]["voteChoice"]] = votesCounter[allVotes[i]["voteChoice"]] + 1; // increment its count by 1
+                }
+                if(!userHasVotedInThisPoll){ // user hasn't voted in the poll
+                    console.log("User hasn't voted in this poll."); // log server indicator that user has not voted
+                    res.redirect("/poll?pollId="+req.query.pollId); // redirect to voting page if user has not voted
+                }
+                else{ // user has voted in the poll
+                    res.render("pollresults", { // render the results page
+                        pollData: resultOfPollQuery, // pass in the poll data
+                        allVotes: allVotes, // pass in all results
+                        userVoteData : userVoteData, // pass in the user's vote information
+                        votesCounter : votesCounter // pass in the counts of all the votes (for graph building and percentage calculation)
+                    });
+                } 
+            }
+        });
+    } else { // no poll ID was given, or user isn't logged in
+        res.redirect("/"); // redirect to home page
+    }
+});
+
 // Route for an account page
 app.get("/account", function (req, res) {
-    res.render("dashboard");
+    res.redirect("/");
 });
 
 // Route for a polls page
@@ -124,6 +184,11 @@ app.get("/polls", function (req, res) {
 app.get("/search", function (req, res) {
     res.send("Search page!");
 });
+
+/* Redirect unknown page routes to home page
+app.get("/*", function (req, res) {
+    res.redirect("/");
+});*/
 
 // Start listening on port 8080
 app.listen(8080);

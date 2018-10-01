@@ -31,7 +31,7 @@ html
 						form.form-inline(action='/search')
 							input.form-control#searchTerm(placeholder='Search', aria-label='Search', name='searchTerm')
 					li
-						a.waves-effect.waves-light.btn(onclick="performSearch()")
+						a.waves-effect.waves-light.btn.light-blue.accent-4(onclick="performSearch()")
 							i.material-icons.left search
 							| Search
 		// A list of elements from the navbar that are used for mobile responsiveness when hamburger menu is clicked
@@ -48,7 +48,7 @@ html
 				form.form-inline(action='/search')
 					input.form-control#searchTermSidebar(placeholder='Search', aria-label='Search', name='searchTerm', style="color: black")
 			li
-				a.waves-effect.waves-light.btn(onclick="performSearchSidebar()")
+				a.waves-effect.waves-light.btn.light-blue.accent-4(onclick="performSearchSidebar()")
 					i.material-icons.left search
 					| Search
 
@@ -56,6 +56,9 @@ html
 			h4(style="font-family: 'Acme', sans-serif;") New Poll
 			hr
 			form(action="/newpoll", method="post")
+				.row
+					.col.s8
+						strong#numberOfOptionsText Number of Options: 2
 				.row
 					.input-field.col.s12
 						i.material-icons.prefix question_answer
@@ -76,10 +79,7 @@ html
 						a(onclick="addOption()", href="#") Add option
 							i.material-icons.left add_box
 				.row
-					.col.s8
-						strong#numberOfOptionsText Number of Options: 2
-				.row
-					button.btn.waves-effect.waves-light.blue(type='submit', name='action')
+					button.btn.waves-effect.waves-light.light-blue.accent-4(type='submit', name='action')
 						| Submit
 						i.material-icons.right send
 		//Materialize JS CDN
@@ -102,7 +102,7 @@ html
 			// Logic for adding options: Keep track in-browser of how many options are on the screen
 			var numberOfOptions = 2;
 			function addOption(){
-				if(numberOfOptions<10){
+				if(numberOfOptions<6){
 					numberOfOptions++;
 					var newOptionHtml = 
 					'<div class="row">'+
@@ -110,10 +110,10 @@ html
 							'<input class="validate" id="option'+numberOfOptions+'" type="text" name= "option'+numberOfOptions+'" style="color: black"/>'+
 							'<label for="option'+numberOfOptions+'">Option '+numberOfOptions+'</label>'+
 						'</div>'+
-					'</div>'
+					'</div>';
 					document.getElementById("addOptionRow").outerHTML = newOptionHtml + document.getElementById("addOptionRow").outerHTML;
 					document.getElementById("numberOfOptionsText").innerHTML = "Number of Options: "+numberOfOptions;
 				} else{
-					console.log("Can't have more than 10 poll options.");
+					console.log("Can't have more than 6 poll options.");
 				}
 			}

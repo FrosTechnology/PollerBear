@@ -7,7 +7,7 @@ html
 		link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css')
 		link(rel='stylesheet', href='style.css')
 		link(rel="stylesheet", href="https://fonts.googleapis.com/css?family=Acme")
-		title PollerBear
+		title="PollerBear"
 		// Let browser know website is optimized for mobile
 		meta(name='viewport', content='width=device-width, initial-scale=1.0')
 	body
@@ -53,29 +53,28 @@ html
 					| Search
 
 		.container
-			h4(style="font-family: 'Acme', sans-serif;") Recent Polls
+			h4(style="font-family: 'Acme', sans-serif;")=pollData[0]["pollPrompt"]+" (Results)"
+			p(style="font-size: 15px")=pollData[0]["createdDate"]
 			hr
 			ul.collection
-				each val in recentPolls
-					a.collection-item(href="/poll?pollId="+val["pollId"])
+				each val, index in votesCounter
+					.collection-item
 						li
-							span.left-align(style="font-size: 20px")= val["pollPrompt"]
-							span.right-align(style="color: black; float: right")= val["createdDate"]
-						li(style="color: black")="Owner: "+val["owner"]
-		
+							span.left-align(style="font-size: 20px")= index+": "+val
+
 		//Materialize JS CDN
 		script(src='https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js')
 		script.
 			// Initialize mobile responsiveness for side navbar hamburger menu
 			document.addEventListener('DOMContentLoaded', function() {
-			    var elems = document.querySelectorAll('.sidenav');
-			    var instances = M.Sidenav.init(elems);
+				var elems = document.querySelectorAll('.sidenav');
+				var instances = M.Sidenav.init(elems);
 			});
-			
+
 			function performSearch() {
-			    window.location = "/search?searchTerm="+document.getElementById("searchTerm").value;
+				window.location = "/search?searchTerm="+document.getElementById("searchTerm").value;
 			}
 
 			function performSearchSidebar() {
-			    window.location = "/search?searchTerm="+document.getElementById("searchTermSidebar").value;
+				window.location = "/search?searchTerm="+document.getElementById("searchTermSidebar").value;
 			}

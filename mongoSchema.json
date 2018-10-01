@@ -1,16 +1,21 @@
 {
-    "User" : {
+    "user" : {
         "Username" : "String",
         "Password" : "String",
         "Email" : "String",
         "JoinDate" : "JavaScript Date"
     },
-    "Poll" : {
-        "Owner" : "String",
-        "PollPrompt" : "String",
-        "PollOptions": ["String", "String", "String", "etc."],
-        "PollVotes" : ["Int", "Int", "Int", "etc."],
-        "StartDate" : "JavaScript Date",
-        "EndDate" : "JavaScript Date"
+    "poll" : {
+        "owner" : "String",
+        "pollPrompt" : "String",
+        "pollOptions": ["String", "String", "String", "etc."],
+        "pollVotes" : ["Int", "Int", "Int", "etc."],
+        "createdDate" : "JavaScript Date"
+    },
+    "pollVote" : {
+        "username" : "String",
+        "pollId" : "String",
+        "voteChoice" : "String",
+        "voteDate" : "JavaScript Data"
     }
 }
