@@ -10,6 +10,16 @@ html
 		title PollerBear
 		// Let browser know website is optimized for mobile
 		meta(name='viewport', content='width=device-width, initial-scale=1.0')
+		style.
+			/* label focus color */
+			.input-field input[type=text]:focus + label {
+				color: #000;
+			}
+			/* label underline focus color */
+			.input-field input[type=text]:focus {
+				border-bottom: 1px solid #1565c0;
+				box-shadow: 0 1px 0 0 #1565c0;
+			}
 	body
 		nav.blue.darken-3(style="font-family: 'Acme', sans-serif;")
 			.nav-wrapper

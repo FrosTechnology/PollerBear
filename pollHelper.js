@@ -88,7 +88,7 @@ module.exports.getRecentPolls = function (mongoClient, mongoConnectionUrl, callb
     });
 }
 
-module.exports.getPollResults = function (mongoClient, mongoConnectionUrl, pollId, username, callback) {
+module.exports.getPollResults = function (mongoClient, mongoConnectionUrl, pollId, callback) {
     mongoClient.connect(mongoConnectionUrl, function (err, db) { // Connect to MongoDB
         if (err) { // mongo connection error
             console.log(err); // log error
@@ -96,10 +96,9 @@ module.exports.getPollResults = function (mongoClient, mongoConnectionUrl, pollI
         } else {
             var dbObject = db.db("pollerbear"); // Connect to the PollerBear database
             var query = { // A query to identify if the user has voted in the poll
-                pollId: parseInt(pollId), // query based on pollId (parse string to int)
-                username: username // also query based on the username
+                pollId: pollId, // query based on pollId (parse string to int)
             }
-            dbObject.collection("pollVote").find().toArray(function (err, allPollVotes) { // get results as an array
+            dbObject.collection("pollVote").find(query).toArray(function (err, allPollVotes) { // get results as an array
                 db.close(); // close DB connection
                 if (err) { // if query error or user has not voted in poll
                     callback(-1, -1); // return failure indicator
@@ -135,6 +134,27 @@ module.exports.voteInPoll = function (mongoClient, mongoConnectionUrl, pollId, v
                     callback(-1); //callback with failure indicator
                 else
                     callback(1);
+            });
+        }
+    });
+}
+
+module.exports.searchPolls = function (mongoClient, mongoConnectionUrl, searchTerm, callback) {
+    mongoClient.connect(mongoConnectionUrl, function (err, db) { // Connect to MongoDB
+        if (err) { // mongo connection error
+            console.log(err); // log error
+            callback(-1); // return failure indicator in callback
+        } else {
+            var dbObject = db.db("pollerbear"); // Connect to the PollerBear database
+            var searchQuery = {pollPrompt:{'$regex' : searchTerm, '$options' : 'i'}}; // regex for search term inclusion (ignore case)
+            dbObject.collection("poll").find(searchQuery).toArray(function (err, results) { // get results as an array
+                db.close(); // close DB connection
+                if (err){ // if query error
+                    console.log(err); // log server error
+                    callback(-1); // return failure indicator
+                }
+                else // results found successfully
+                    callback(results); // return the search results
             });
         }
     });

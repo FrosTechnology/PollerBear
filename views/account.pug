@@ -53,18 +53,9 @@ html
 					| Search
 
 		.container
-			h4(style="font-family: 'Acme', sans-serif;")=pollData[0]["pollPrompt"]+" (Results)"
-			p(style="font-size: 15px")="Created on: "+pollData[0]["createdDate"].toDateString()
+			h4(style="font-family: 'Acme', sans-serif;")=username
 			hr
-			ul.collection
-				each val, index in votesCounter
-					.collection-item
-						li
-							if(index==userVoteData["voteChoice"])
-								strong.left-align(style="font-size: 20px")= index+": "+val+" (Your Vote)"
-							else
-								span.left-align(style="font-size: 20px")= index+": "+val
-			p="You voted in this poll on "+userVoteData["voteDate"].toDateString()
+			p="You're a user!"
 
 		//Materialize JS CDN
 		script(src='https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js')

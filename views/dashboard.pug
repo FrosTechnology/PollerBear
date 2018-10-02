@@ -59,8 +59,8 @@ html
 				each val in recentPolls
 					a.collection-item(href="/poll?pollId="+val["pollId"])
 						li
-							span.left-align(style="font-size: 20px")= val["pollPrompt"]
-							span.right-align(style="color: black; float: right")= val["createdDate"]
+							span.left-align(style="color: #1565c0; font-size: 20px")= val["pollPrompt"]
+							span.right-align(style="color: black; float: right")= val["createdDate"].toDateString()
 						li(style="color: black")="Owner: "+val["owner"]
 		
 		//Materialize JS CDN

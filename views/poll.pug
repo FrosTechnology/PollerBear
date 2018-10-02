@@ -54,13 +54,13 @@ html
 
 		.container
 			h4(style="font-family: 'Acme', sans-serif;")=pollData["pollPrompt"]
-			p(style="font-size: 15px")=pollData["createdDate"]
+			p(style="font-size: 15px")="Created on: "+pollData["createdDate"].toDateString()
 			hr
 			ul.collection
 				each val in pollData["pollOptions"]
 					a.collection-item(href="/vote?pollId="+pollData["pollId"]+"&vote="+val)
 						li
-							span.left-align(style="font-size: 20px")= val
+							span.left-align(style="color: #1565c0; font-size: 20px")= val
 
 		//Materialize JS CDN
 		script(src='https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js')

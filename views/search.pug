@@ -53,18 +53,15 @@ html
 					| Search
 
 		.container
-			h4(style="font-family: 'Acme', sans-serif;")=pollData[0]["pollPrompt"]+" (Results)"
-			p(style="font-size: 15px")="Created on: "+pollData[0]["createdDate"].toDateString()
+			h4(style="font-family: 'Acme', sans-serif;")=results.length+" results found for search '"+searchTerm+"'"
 			hr
 			ul.collection
-				each val, index in votesCounter
-					.collection-item
+				each val in results
+					a.collection-item(href="/poll?pollId="+val["pollId"])
 						li
-							if(index==userVoteData["voteChoice"])
-								strong.left-align(style="font-size: 20px")= index+": "+val+" (Your Vote)"
-							else
-								span.left-align(style="font-size: 20px")= index+": "+val
-			p="You voted in this poll on "+userVoteData["voteDate"].toDateString()
+							span.left-align(style="color: #1565c0; font-size: 20px")= val["pollPrompt"]
+							span.right-align(style="color: black; float: right")= val["createdDate"].toDateString()
+							li(style="color: black")="Owner: "+val["owner"]
 
 		//Materialize JS CDN
 		script(src='https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js')

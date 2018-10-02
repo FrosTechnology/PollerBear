@@ -105,6 +105,8 @@ app.get("/newpoll", function (req, res) {
         res.redirect("/"); // redirect to home page
 });
 
+// Route for voting in a poll
+// TODO: If the user has voted in the poll, redirect to the poll's results
 app.get("/poll", function (req, res) {
     if(req.query.pollId){
         pollHelper.getPollById(mongoClient, mongoConnectionUrl, req.query.pollId, function(result){
@@ -136,7 +138,7 @@ app.get("/vote", function (req, res){
 // User MUST have voted in the poll to see the results
 app.get("/pollresults", function(req, res){
     if(req.query.pollId && req.session.username){
-        pollHelper.getPollResults(mongoClient, mongoConnectionUrl, req.query.pollId, req.session.username, function(allVotes, resultOfPollQuery){
+        pollHelper.getPollResults(mongoClient, mongoConnectionUrl, req.query.pollId, function(allVotes, resultOfPollQuery){
             if(resultOfPollQuery==-1 || allVotes==-1) // some error occurred in gathering the votes
                 res.redirect("/poll?pollId="+req.query.pollId); // redirect to voting page
             else{ // poll results gathered successfully
@@ -170,19 +172,43 @@ app.get("/pollresults", function(req, res){
     }
 });
 
-// Route for an account page
-app.get("/account", function (req, res) {
-    res.redirect("/");
-});
-
 // Route for a polls page
 app.get("/polls", function (req, res) {
     res.send("Polls page!");
 });
 
-// Route for a search page
+// Route for a search page. User should input some "searchTerm" in the header for searching polls
+// User must be logged in to search, or is redirected to home page
 app.get("/search", function (req, res) {
-    res.send("Search page!");
+    if(!req.session.username) // if not logged in
+        res.redirect("/"); // redirect to home page
+    else{ // if logged in
+        if(req.query.searchTerm) // if search term set in header
+            var searchTerm=req.query.searchTerm; // set searchTerm variable
+        else // search term not given
+            var searchTerm = ""; // assume an empty string
+        pollHelper.searchPolls(mongoClient, mongoConnectionUrl, searchTerm, function(results){
+            if(results!=-1){ // no errors in searching Mongo
+                console.log(results);
+                res.render("search", {
+                    results : results,
+                    searchTerm: searchTerm
+                });
+            } else
+                res.redirect("/"); // redirect to home page for errors
+        });
+    }
+});
+
+// Account page for a user
+app.get("/account", function(req, res){
+    if(!req.session.username) // user must be logged in
+        res.redirect("/"); // else redirect to home page for login
+    else{
+        res.render("account", { // render account view
+            username: req.session.username // pass in the session username
+        });
+    }
 });
 
 /* Redirect unknown page routes to home page
