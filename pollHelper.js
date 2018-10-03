@@ -160,6 +160,35 @@ module.exports.searchPolls = function (mongoClient, mongoConnectionUrl, searchTe
     });
 }
 
+// Function to determine if a user voted in a poll
+// Takes the username and poll ID, Mongo connection objects, and a callback
+module.exports.didUserVote = function (mongoClient, mongoConnectionUrl, pollId, username, callback) {
+    mongoClient.connect(mongoConnectionUrl, function (err, db) { // Connect to MongoDB
+        if (err) { // For connection errors
+            console.log(err); // Log the error
+            callback(-1); // Callback with -1 (failure indicator)
+        } else {
+            var dbObject = db.db("pollerbear"); // Connect to the PollerBear database
+            var query = { // Object to represent the user's vote
+                username: username,
+                pollId: pollId
+            };
+            dbObject.collection("pollVote").find(query).toArray(function (err, result) { // Query the pollVote collection
+                if (err) { // For query errors
+                    console.log(err); // Log the error
+                    callback(-1); // Callback with -1 (failure indicator)
+                } else {
+                    db.close(); // close Mongo connection
+                    if (result.length==0) // User has voted in poll
+                        callback(false); // User has not voted in poll, callback false
+                    else
+                        callback(true); // Callback with true
+                }
+            });
+        }
+    });
+}
+
 // Generates a random number in a given range
 function getRandomId(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;

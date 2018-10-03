@@ -49,14 +49,13 @@ app.use(
 // Home Page Route
 // If user is logged in, redirect to their dashboard. Otherwise, show register/login home page
 app.get("/", function (req, res) {
-    if (req.session.username){ // if logged in
-        pollHelper.getRecentPolls(mongoClient, mongoConnectionUrl, function(results){
+    if (req.session.username) { // if logged in
+        pollHelper.getRecentPolls(mongoClient, mongoConnectionUrl, function (results) {
             res.render("dashboard", {
                 recentPolls: results
             });
-        }); 
-    }
-    else // if not logged in
+        });
+    } else // if not logged in
         res.render("homepage"); // render home page (register/login)
 });
 
@@ -64,7 +63,7 @@ app.get("/", function (req, res) {
 app.post("/register", function (req, res) {
     // Pass Request Body of parameters into a registerUser function
     accountHelper.registerUser(req.body.username, req.body.password, req.body.email, mongoClient, mongoConnectionUrl, function (registerSuccess) {
-        if(registerSuccess)
+        if (registerSuccess)
             req.session.username = req.body.username;
         res.redirect("/"); // Redirect to home page (will redirect to dashboard if register was successful)
     });
@@ -74,8 +73,8 @@ app.post("/register", function (req, res) {
 app.post("/newpoll", function (req, res) {
     // Pass Request Body of parameters into a registerUser function
     pollHelper.newPoll(req.session.username, req.body, mongoClient, mongoConnectionUrl, function (newPollId) {
-        if(newPollId!=-1)
-            res.redirect("/poll?pollId="+newPollId); // Redirect to new poll if create was successful
+        if (newPollId != -1)
+            res.redirect("/poll?pollId=" + newPollId); // Redirect to new poll if create was successful
         else
             res.redirect("/newpoll?error=true");
     });
@@ -91,7 +90,8 @@ app.post("/login", function (req, res) {
     });
 });
 
-app.get("/logout", function(req, res){
+// Route to destroy session and redirect to home page
+app.get("/logout", function (req, res) {
     req.session.destroy(); // destroy all session data
     res.redirect("/"); // redirect to home page
 });
@@ -99,7 +99,7 @@ app.get("/logout", function(req, res){
 // Route for a page to create a new poll
 // User must be logged in to access
 app.get("/newpoll", function (req, res) {
-    if(req.session.username) // if logged in
+    if (req.session.username) // if logged in
         res.render("newpoll"); // render "new poll" page
     else // if not logged in
         res.redirect("/"); // redirect to home page
@@ -108,63 +108,75 @@ app.get("/newpoll", function (req, res) {
 // Route for voting in a poll
 // TODO: If the user has voted in the poll, redirect to the poll's results
 app.get("/poll", function (req, res) {
-    if(req.query.pollId){
-        pollHelper.getPollById(mongoClient, mongoConnectionUrl, req.query.pollId, function(result){
-            res.render("poll", {
-                pollData : result[0],
-                username : req.session.username
-            });
+    if (req.query.pollId) {
+        pollHelper.didUserVote(mongoClient, mongoConnectionUrl, req.query.pollId, req.session.username,
+            function (result) {
+                console.log(result);
+                if(result==-1) // Mongo error
+                    res.redirect("/"); // redirect to home page
+                else if (result==false) { // user has not voted in poll yet, so render the voting page
+                    pollHelper.getPollById(mongoClient, mongoConnectionUrl, req.query.pollId, function (result) { // get poll information
+                        res.render("poll", { // render voting page
+                            pollData: result[0], // pass in the poll data from MongoDB
+                            username: req.session.username // pass in the user's username
+                        });
+                    });
+                } else { // user has already voted in poll
+                    res.redirect("/pollresults?pollId=" + req.query.pollId);
+                }
         });
-    }
-    else
-        res.send("/");
+    } else // no poll ID passed into headers
+        res.redirect("/"); // redirect to home page
 });
 
-app.get("/vote", function (req, res){
-    if(req.query.pollId && req.query.vote && req.session.username){ // user must be logged in and provide pollId and their vote
+// Route for voting in a poll
+// No page is rendered, always ends in redirect
+// Calls queryHelper's vote function with passed in information, redirects to poll result if vote was successful
+app.get("/vote", function (req, res) {
+    if (req.query.pollId && req.query.vote && req.session.username) { // user must be logged in and provide pollId and their vote
         pollHelper.voteInPoll(mongoClient, mongoConnectionUrl, req.query.pollId, // call external method to vote in poll
-            req.query.vote, req.session.username, function(successIndicator){ // callback
-                if(successIndicator!=-1)
-                    res.redirect("/pollresults?pollId="+req.query.pollId);
+            req.query.vote, req.session.username,
+            function (successIndicator) { // callback
+                if (successIndicator != -1)
+                    res.redirect("/pollresults?pollId=" + req.query.pollId);
                 else
-                    res.redirect("/poll?pollId="+req.query.pollId);
-        });
-    } else{ // redirect to home page if there is an error with inputs
+                    res.redirect("/poll?pollId=" + req.query.pollId);
+            });
+    } else { // redirect to home page if there is an error with inputs
         res.redirect("/");
     }
 });
 
 // Route for showing a user the results of a poll
 // User MUST have voted in the poll to see the results
-app.get("/pollresults", function(req, res){
-    if(req.query.pollId && req.session.username){
-        pollHelper.getPollResults(mongoClient, mongoConnectionUrl, req.query.pollId, function(allVotes, resultOfPollQuery){
-            if(resultOfPollQuery==-1 || allVotes==-1) // some error occurred in gathering the votes
-                res.redirect("/poll?pollId="+req.query.pollId); // redirect to voting page
-            else{ // poll results gathered successfully
+app.get("/pollresults", function (req, res) {
+    if (req.query.pollId && req.session.username) {
+        pollHelper.getPollResults(mongoClient, mongoConnectionUrl, req.query.pollId, function (allVotes, resultOfPollQuery) {
+            if (resultOfPollQuery == -1 || allVotes == -1) // some error occurred in gathering the votes
+                res.redirect("/poll?pollId=" + req.query.pollId); // redirect to voting page
+            else { // poll results gathered successfully
                 votesCounter = {}; // initialize an object for storing a count of all the votes
-                for(var i = 0; i < resultOfPollQuery[0]["pollOptions"].length; i++) // loop through the poll's options
+                for (var i = 0; i < resultOfPollQuery[0]["pollOptions"].length; i++) // loop through the poll's options
                     votesCounter[resultOfPollQuery[0]["pollOptions"][i]] = 0; // add a possible option to the object
                 var userHasVotedInThisPoll = false; // initialize boolean such that user has not voted in the poll
-                for(var i = 0; i < allVotes.length; i++){ // loop through all votes
-                    if(allVotes[i]["username"]===req.session.username){ // flagger for user's vote
+                for (var i = 0; i < allVotes.length; i++) { // loop through all votes
+                    if (allVotes[i]["username"] === req.session.username) { // flagger for user's vote
                         userHasVotedInThisPoll = true; // set flag to true
                         userVoteData = allVotes[i]; // keep track of the user's vote information (choice and date)
                     }
                     votesCounter[allVotes[i]["voteChoice"]] = votesCounter[allVotes[i]["voteChoice"]] + 1; // increment its count by 1
                 }
-                if(!userHasVotedInThisPoll){ // user hasn't voted in the poll
+                if (!userHasVotedInThisPoll) { // user hasn't voted in the poll
                     console.log("User hasn't voted in this poll."); // log server indicator that user has not voted
-                    res.redirect("/poll?pollId="+req.query.pollId); // redirect to voting page if user has not voted
-                }
-                else{ // user has voted in the poll
+                    res.redirect("/poll?pollId=" + req.query.pollId); // redirect to voting page if user has not voted
+                } else { // user has voted in the poll
                     res.render("pollresults", { // render the results page
                         pollData: resultOfPollQuery, // pass in the poll data
                         allVotes: allVotes, // pass in all results
-                        userVoteData : userVoteData, // pass in the user's vote information
-                        votesCounter : votesCounter // pass in the counts of all the votes (for graph building and percentage calculation)
+                        userVoteData: userVoteData, // pass in the user's vote information
+                        votesCounter: votesCounter // pass in the counts of all the votes (for graph building and percentage calculation)
                     });
-                } 
+                }
             }
         });
     } else { // no poll ID was given, or user isn't logged in
@@ -180,18 +192,18 @@ app.get("/polls", function (req, res) {
 // Route for a search page. User should input some "searchTerm" in the header for searching polls
 // User must be logged in to search, or is redirected to home page
 app.get("/search", function (req, res) {
-    if(!req.session.username) // if not logged in
+    if (!req.session.username) // if not logged in
         res.redirect("/"); // redirect to home page
-    else{ // if logged in
-        if(req.query.searchTerm) // if search term set in header
-            var searchTerm=req.query.searchTerm; // set searchTerm variable
+    else { // if logged in
+        if (req.query.searchTerm) // if search term set in header
+            var searchTerm = req.query.searchTerm; // set searchTerm variable
         else // search term not given
             var searchTerm = ""; // assume an empty string
-        pollHelper.searchPolls(mongoClient, mongoConnectionUrl, searchTerm, function(results){
-            if(results!=-1){ // no errors in searching Mongo
+        pollHelper.searchPolls(mongoClient, mongoConnectionUrl, searchTerm, function (results) {
+            if (results != -1) { // no errors in searching Mongo
                 console.log(results);
                 res.render("search", {
-                    results : results,
+                    results: results,
                     searchTerm: searchTerm
                 });
             } else
@@ -201,10 +213,10 @@ app.get("/search", function (req, res) {
 });
 
 // Account page for a user
-app.get("/account", function(req, res){
-    if(!req.session.username) // user must be logged in
+app.get("/account", function (req, res) {
+    if (!req.session.username) // user must be logged in
         res.redirect("/"); // else redirect to home page for login
-    else{
+    else {
         res.render("account", { // render account view
             username: req.session.username // pass in the session username
         });
