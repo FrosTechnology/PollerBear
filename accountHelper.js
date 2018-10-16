@@ -58,21 +58,20 @@ module.exports.registerUser = function (newUsername, newPassword, newEmail, mong
 }
 
 // TODO: Finish this method
-module.exports.getUser = function (mongoClient, mongoConnectionUrl, username, callback) {
+module.exports.getUserPolls = function (mongoClient, mongoConnectionUrl, username, callback) {
     mongoClient.connect(mongoConnectionUrl, function (err, db) { // Connect to MongoDB
         if (err) {
             console.log(err); // log mongo error to server
-            callback(-1, -1); // return failure indicator
+            callback(-1); // return failure indicator
         };
         var dbObject = db.db("pollerbear"); // Connect to the PollerBear database
-        dbObject.collection("user").insertOne(newUser, function (err, result) { // Insert function
-            if (err) { //error inserting new user
+        dbObject.collection("poll").find({owner: username}).toArray(function (err, result) { // Find a poll by username
+            if (err) { //error
                 console.log(err); // log error
-                callback(false); // callback with failed registration
-            } else { // successful registration
-                console.log("New user has been inserted!"); // Log success message
+                callback(-1); // callback with failed registration
+            } else { // successful query
                 db.close(); // Close connection to database
-                callback(true); // callback with successful register   
+                callback(result); // callback with successful register   
             }
         });
     });

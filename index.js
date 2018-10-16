@@ -111,7 +111,6 @@ app.get("/poll", function (req, res) {
     if (req.query.pollId) {
         pollHelper.didUserVote(mongoClient, mongoConnectionUrl, req.query.pollId, req.session.username,
             function (result) {
-                console.log(result);
                 if(result==-1) // Mongo error
                     res.redirect("/"); // redirect to home page
                 else if (result==false) { // user has not voted in poll yet, so render the voting page
@@ -156,8 +155,11 @@ app.get("/pollresults", function (req, res) {
                 res.redirect("/poll?pollId=" + req.query.pollId); // redirect to voting page
             else { // poll results gathered successfully
                 votesCounter = {}; // initialize an object for storing a count of all the votes
-                for (var i = 0; i < resultOfPollQuery[0]["pollOptions"].length; i++) // loop through the poll's options
+                var totalVotes = 0; // count of total votes for return to user
+                for (var i = 0; i < resultOfPollQuery[0]["pollOptions"].length; i++){ // loop through the poll's options
                     votesCounter[resultOfPollQuery[0]["pollOptions"][i]] = 0; // add a possible option to the object
+                    totalVotes++; // increment total votes
+                }
                 var userHasVotedInThisPoll = false; // initialize boolean such that user has not voted in the poll
                 for (var i = 0; i < allVotes.length; i++) { // loop through all votes
                     if (allVotes[i]["username"] === req.session.username) { // flagger for user's vote
@@ -174,7 +176,8 @@ app.get("/pollresults", function (req, res) {
                         pollData: resultOfPollQuery, // pass in the poll data
                         allVotes: allVotes, // pass in all results
                         userVoteData: userVoteData, // pass in the user's vote information
-                        votesCounter: votesCounter // pass in the counts of all the votes (for graph building and percentage calculation)
+                        votesCounter: votesCounter, // pass in the counts of all the votes (for graph building and percentage calculation)
+                        totalVotes: totalVotes
                     });
                 }
             }
@@ -201,7 +204,6 @@ app.get("/search", function (req, res) {
             var searchTerm = ""; // assume an empty string
         pollHelper.searchPolls(mongoClient, mongoConnectionUrl, searchTerm, function (results) {
             if (results != -1) { // no errors in searching Mongo
-                console.log(results);
                 res.render("search", {
                     results: results,
                     searchTerm: searchTerm
@@ -217,9 +219,16 @@ app.get("/account", function (req, res) {
     if (!req.session.username) // user must be logged in
         res.redirect("/"); // else redirect to home page for login
     else {
-        res.render("account", { // render account view
-            username: req.session.username // pass in the session username
-        });
+        accountHelper.getUserPolls(mongoClient, mongoConnectionUrl, req.session.username, function(polls){
+            if(polls==-1) // error
+                res.redirect("/"); // redirect to home page
+            else{
+                res.render("account", { // render account view
+                    username: req.session.username, // pass in the session username
+                    polls: polls // data of all the user's polls
+                });
+            }
+        })
     }
 });
 
