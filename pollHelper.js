@@ -32,7 +32,6 @@ module.exports.newPoll = function (username, pollBody, mongoClient, mongoConnect
                     console.log(err); // log error
                     callback(-1); // callback with failed registration
                 } else { // successful 
-                    console.log("New poll has been inserted!"); // Log success message
                     db.close(); // Close connection to database
                     callback(newPollId); // callback with successful register   
                 }

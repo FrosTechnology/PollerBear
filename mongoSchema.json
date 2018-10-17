@@ -6,6 +6,7 @@
         "JoinDate" : "JavaScript Date"
     },
     "poll" : {
+        "pollId" : "Integer",
         "owner" : "String",
         "pollPrompt" : "String",
         "pollOptions": ["String", "String", "String", "etc."],
@@ -13,8 +14,8 @@
     },
     "pollVote" : {
         "username" : "String",
-        "pollId" : "String",
+        "pollId" : "Integer",
         "voteChoice" : "String",
-        "voteDate" : "JavaScript Data"
+        "voteDate" : "JavaScript Date"
     }
 }

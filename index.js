@@ -71,7 +71,7 @@ app.post("/register", function (req, res) {
 
 // POST method for submitting a new poll
 app.post("/newpoll", function (req, res) {
-    // Pass Request Body of parameters into a registerUser function
+    // Pass Request Body of parameters into a new poll function
     pollHelper.newPoll(req.session.username, req.body, mongoClient, mongoConnectionUrl, function (newPollId) {
         if (newPollId != -1)
             res.redirect("/poll?pollId=" + newPollId); // Redirect to new poll if create was successful
@@ -158,7 +158,6 @@ app.get("/pollresults", function (req, res) {
                 var totalVotes = 0; // count of total votes for return to user
                 for (var i = 0; i < resultOfPollQuery[0]["pollOptions"].length; i++){ // loop through the poll's options
                     votesCounter[resultOfPollQuery[0]["pollOptions"][i]] = 0; // add a possible option to the object
-                    totalVotes++; // increment total votes
                 }
                 var userHasVotedInThisPoll = false; // initialize boolean such that user has not voted in the poll
                 for (var i = 0; i < allVotes.length; i++) { // loop through all votes
@@ -167,6 +166,7 @@ app.get("/pollresults", function (req, res) {
                         userVoteData = allVotes[i]; // keep track of the user's vote information (choice and date)
                     }
                     votesCounter[allVotes[i]["voteChoice"]] = votesCounter[allVotes[i]["voteChoice"]] + 1; // increment its count by 1
+                    totalVotes++; // increment total votes
                 }
                 if (!userHasVotedInThisPoll) { // user hasn't voted in the poll
                     console.log("User hasn't voted in this poll."); // log server indicator that user has not voted
@@ -232,10 +232,10 @@ app.get("/account", function (req, res) {
     }
 });
 
-/* Redirect unknown page routes to home page
+//Redirect unknown page routes to home page
 app.get("/*", function (req, res) {
     res.redirect("/");
-});*/
+});
 
 // Start listening on port 8080
 app.listen(8080);
